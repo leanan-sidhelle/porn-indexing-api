@@ -27,11 +27,10 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
-plugins {       
-    //TODO:shouldn't be needed as this should be a root repository; however, for consistency...
-    id "com.alexvasilkov.git-dependencies" version "2.0.3"
-}
-
 rootProject.name = "porn-indexing-api"
 
+sourceControl {
+    gitRepository("https://github.com/leanan-sidhelle/util-api.git") {
+        producesModule("com.github.leanan.sidelleh:util-api")
+    }
+}

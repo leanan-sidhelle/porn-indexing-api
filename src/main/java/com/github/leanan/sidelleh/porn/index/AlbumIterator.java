@@ -38,7 +38,7 @@ import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//TODO:import com.github.leanan.sidelleh.util.LoggerUtils;
+import com.github.leanan.sidelleh.util.LoggerUtils;
 
 /**
  * TODO:
@@ -91,7 +91,7 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 			return results.iterator();
 		} catch(IOException e) {
 			LOGGER.warn("Error parsing {}.",url);
-			//TODO:LoggerUtils.trace(LOGGER,e);
+			LoggerUtils.trace(LOGGER,e);
 			return null;
 		}
 	}
@@ -119,7 +119,7 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 			return results.iterator();
 		} catch(IOException e) {
 			LOGGER.warn("Error parsing {}.",url);
-			//TODO:LoggerUtils.trace(LOGGER,e);
+			LoggerUtils.trace(LOGGER,e);
 			return null;
 		}
 	}

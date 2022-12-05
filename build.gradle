@@ -35,9 +35,15 @@ repositories {
 }
 
 dependencies {
-    implementation "ch.qos.logback:logback-classic:1.4.5" //TODO:is this the correct logging dependency to integrate into spring and gradle later????
-    implementation "org.apache.commons:commons-collections4:4.4" //TODO:how to handle the vulnerabilities???
-    implementation "org.jsoup:jsoup:1.15.3"
+    api "ch.qos.logback:logback-classic:1.4.5" //TODO:is this the correct logging dependency to integrate into spring and gradle later????
+    api "org.apache.commons:commons-collections4:4.4" //TODO:how to handle the vulnerabilities???
+    api "org.jsoup:jsoup:1.15.3"
+    
+    api("com.github.leanan.sidelleh:util-api:SNAPSHOT") {
+        version {
+            branch = "development"
+        }
+    }
 }
 
 testing {
