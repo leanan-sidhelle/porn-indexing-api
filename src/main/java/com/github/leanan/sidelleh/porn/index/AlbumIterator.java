@@ -35,6 +35,7 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,11 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 	/**
 	 * TODO:
 	 */
+	protected final boolean cssQueries;
+	
+	/**
+	 * TODO:
+	 */
 	protected final URL indexUrl;
 
 	/**
@@ -62,8 +68,17 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 	 * @param root
 	 */
 	public AlbumIterator(URL root) {
+		this(root,false);
+	}
+	
+	/**
+	 * TODO:
+	 * @param root
+	 */
+	public AlbumIterator(URL root,boolean cssQueries) {
 		super(root);
 		this.indexUrl = root; //TODO:can this be replaced by getRoot() ???
+		this.cssQueries = cssQueries;
 	}
 	
 	/**
@@ -82,7 +97,7 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 			ArrayList<URL> results = new ArrayList<URL>();
 			for(String searchPath : getLeafSearchPaths()) {
 				LOGGER.debug("Searching {} for elements.",searchPath);
-				for(Element elem : doc.selectXpath(searchPath)) {
+				for(Element elem : select(doc,searchPath)) {
 					LOGGER.debug("Retreiving HREF from {}.",elem);
 					String href = elem.attr("href");
 					if(href!=null && !href.isBlank()) {
@@ -99,6 +114,11 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 		}
 	}
 	
+	protected Elements select(Document doc, String query) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * TODO:
 	 * @return
@@ -113,7 +133,7 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 			ArrayList<URL> results = new ArrayList<URL>();
 			for(String searchPath : getBranchSearchPaths()) {
 				LOGGER.debug("Searching {} for elements.",searchPath);
-				for(Element elem : doc.selectXpath(searchPath)) {
+				for(Element elem : select(doc,searchPath)) {
 					LOGGER.debug("Retreiving HREF from {}.",elem);
 					String href = elem.attr("href");
 					if(href!=null && !href.isBlank()) {
