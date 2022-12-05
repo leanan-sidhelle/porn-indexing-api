@@ -81,7 +81,9 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 			Document doc = Jsoup.parse(url,getTimeOut());
 			ArrayList<URL> results = new ArrayList<URL>();
 			for(String searchPath : getLeafSearchPaths()) {
+				LOGGER.debug("Searching {} for elements.",searchPath);
 				for(Element elem : doc.selectXpath(searchPath)) {
+					LOGGER.debug("Retreiving HREF from {}.",elem);
 					String href = elem.attr("href");
 					if(href!=null && !href.isBlank()) {
 						URL newUrl = new URL(url,href);
@@ -110,7 +112,9 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 			Document doc = Jsoup.parse(url,getTimeOut());
 			ArrayList<URL> results = new ArrayList<URL>();
 			for(String searchPath : getBranchSearchPaths()) {
+				LOGGER.debug("Searching {} for elements.",searchPath);
 				for(Element elem : doc.selectXpath(searchPath)) {
+					LOGGER.debug("Retreiving HREF from {}.",elem);
 					String href = elem.attr("href");
 					if(href!=null && !href.isBlank()) {
 						URL newUrl = new URL(url,href);
