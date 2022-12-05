@@ -114,9 +114,17 @@ public abstract class AlbumIterator extends URLIndexingIterator {
 		}
 	}
 	
+	/**
+	 * TODO:
+	 * @param doc
+	 * @param query
+	 * @return
+	 */
 	protected Elements select(Document doc, String query) {
-		// TODO Auto-generated method stub
-		return null;
+		if(this.cssQueries)
+			return doc.select(query);
+		else
+			return doc.selectXpath(query);
 	}
 
 	/**
