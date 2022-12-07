@@ -26,12 +26,19 @@
  */
 package com.github.leanan.sidelleh.porn.index;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Iterator;
-
 import org.apache.commons.collections4.iterators.ObjectGraphIterator;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.leanan.sidelleh.util.LoggerUtils;
 
 /**
  * TODO:
@@ -66,16 +73,98 @@ public abstract class URLIndexingIterator2 implements Iterator<URL> {
 	protected Object transform(Object input) {
 		URL url = (URL)input;
 		LOGGER.debug("Transforming {}.",url);
-		if(isIndexPage(url)) {
-			return parseIndexPage(url);
-		} else if(isAlbumPage(url)) {
-			return parseAlbumPage(url);
-		} else if(isLeaf(url)) {
-			return url;
+		try {
+			if(input==null) {
+				return parseRootPages();
+			} else if(isIndexPage(url)) {
+				return parseIndexPage(url);
+			} else if(isAlbumPage(url)) {
+				return parseAlbumPage(url);
+			} else if(isLeaf(url)) {
+				return url;
+			}
+			throw new ClassCastException(); //TODO:better/more descriptive exception???
+		} catch(Exception e) {
+			LOGGER.error("Error transforming {}.",input);
+			LoggerUtils.trace(LOGGER, e);
+			return null;
 		}
-		throw new ClassCastException(); //TODO:better/more descriptive exception???
 	}
 	
+	/**
+	 * TODO:
+	 * @return
+	 * @throws IOException 
+	 */
+	protected URL parseRootPages() throws IOException {
+		URL url = getBaseRootUrl();
+		do {
+			Document doc = Jsoup.parse(url,getTimeOut());
+			//search for root href
+			for(Element element : getRootAnchors(doc)) {
+				if(isRootPage(element)) {
+					String href = element.attr("href");
+					return new URL(url,href);
+				}
+			}
+			//get the next root page to check
+			url = getNextRootPageLink(doc);
+		} while(url!=null);
+		return null;
+	}
+
+	/**
+	 * TODO:
+	 * @param doc
+	 * @return
+	 * @throws MalformedURLException 
+	 */
+	protected URL getNextRootPageLink(Document doc) throws MalformedURLException {
+		return IndexingUtils.getFirstHref(doc,getRootPageNextSearchPaths());
+	}
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected abstract String[] getRootPageNextSearchPaths();
+
+	/**
+	 * TODO:
+	 * @param element
+	 * @return
+	 */
+	protected abstract boolean isRootPage(Element element);
+
+	/**
+	 * TODO:
+	 * @param doc
+	 * @return
+	 */
+	protected Collection<Element> getRootAnchors(Document doc) {
+		return IndexingUtils.getElements(doc,getRootSearchPaths());
+	}
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected abstract String[] getRootSearchPaths();
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected abstract URL getBaseRootUrl();
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected int getTimeOut() {
+		return 2; //default to 2s...
+	}
+
 	/**
 	 * TODO:
 	 * @param url
@@ -87,8 +176,37 @@ public abstract class URLIndexingIterator2 implements Iterator<URL> {
 	 * TODO:
 	 * @param url
 	 * @return
+	 * @throws IOException 
 	 */
-	protected abstract Iterator<URL> parseAlbumPage(URL url);
+	protected Iterator<URL> parseAlbumPage(URL url) throws IOException {
+		Document doc = Jsoup.parse(url,getTimeOut());
+		Collection<URL> results = IndexingUtils.getHrefs(doc, getAlbumSearchPaths());
+		URL newUrl = getAlbumNextPageLink(doc);
+		if(newUrl!=null) results.add(newUrl);
+		return results.iterator();
+	}
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected abstract String[] getAlbumSearchPaths();
+
+	/**
+	 * TODO:
+	 * @param doc
+	 * @return
+	 * @throws MalformedURLException 
+	 */
+	protected URL getAlbumNextPageLink(Document doc) throws MalformedURLException {
+		return IndexingUtils.getFirstHref(doc,getAlbumPageNextSearchPaths());
+	}
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected abstract String[] getAlbumPageNextSearchPaths();
 
 	/**
 	 * TODO:
@@ -101,8 +219,33 @@ public abstract class URLIndexingIterator2 implements Iterator<URL> {
 	 * TODO:
 	 * @param url
 	 * @return
+	 * @throws IOException 
 	 */
-	protected abstract Iterator<URL> parseIndexPage(URL url);
+	protected Iterator<URL> parseIndexPage(URL url) throws IOException {
+		Document doc = Jsoup.parse(url,getTimeOut());
+		Collection<URL> results = IndexingUtils.getHrefs(doc, getIndexSearchPaths());
+		URL newUrl = getIndexNextPageLink(doc);
+		if(newUrl!=null) results.add(newUrl);
+		return results.iterator();
+	}
+
+	/**
+	 * TODO:
+	 * @param doc
+	 * @return
+	 * @throws MalformedURLException 
+	 */
+	protected URL getIndexNextPageLink(Document doc) throws MalformedURLException {
+		return IndexingUtils.getFirstHref(doc,getIndexPageNextSearchPaths());
+	}
+
+	protected abstract String[] getIndexPageNextSearchPaths();
+
+	/**
+	 * TODO:
+	 * @return
+	 */
+	protected abstract String[] getIndexSearchPaths();
 
 	/**
 	 * TODO:
@@ -118,7 +261,6 @@ public abstract class URLIndexingIterator2 implements Iterator<URL> {
 
 	@Override
 	public URL next() {
-		LOGGER.debug("Getting next url.");
 		return (URL)wrappedIterator.next();
 	}
 
